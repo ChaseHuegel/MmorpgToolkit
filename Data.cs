@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Linq;
@@ -9,42 +10,45 @@ using System.Threading.Tasks;
 
 namespace MmorpgToolkit
 {
-    public class Data : INotifyPropertyChanged
+    public class Data : PropertyNotifier
     {
         private bool m_HasUnsavedChanges;
 
         public bool HasUnsavedChanges { 
-            get => m_HasUnsavedChanges;
-            private set
-            {
-                m_HasUnsavedChanges = value;
-                NotifyPropertyChanged(nameof(HasUnsavedChanges));
-            }
+            get => GetProperty(ref m_HasUnsavedChanges);
+            set => SetProperty(ref m_HasUnsavedChanges, value);
         }
 
         public Database Database { get; set; }
 
-        public ObservableCollection<DataEntry> NpcEntries { get; set; }
+        public ObservableCollection<DataEntry> NpcEntries { get; set; } = new ObservableCollection<DataEntry>();
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public HashSet<DataEntry> UnsavedEntries { get; private set; } = new HashSet<DataEntry>();
 
         public Data()
         {
             Database = new Database();
             LoadAll();
 
-            NpcEntries.CollectionChanged += OnCollectionChanged;
+            NpcEntries.CollectionChanged += OnNpcEntriesChanged;
         }
 
-        private void NotifyPropertyChanged(string propertyName)
+        private void OnNpcEntriesChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                UnsavedEntries.Add(e.NewItems[0] as DataEntry);
+            else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                UnsavedEntries.Remove(e.OldItems[0] as DataEntry);
+
+            HasUnsavedChanges = UnsavedEntries.Any();
         }
 
-        private void OnCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void OnNpcPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            HasUnsavedChanges = true;
+            if (e.PropertyName != "Unsaved")
+                UnsavedEntries.Add(sender as DataEntry);
+
+            HasUnsavedChanges = UnsavedEntries.Any();
         }
 
         public void LoadAll()
@@ -52,23 +56,45 @@ namespace MmorpgToolkit
             LoadNpcData();
         }
 
+        public bool SaveNpc(DataEntry dataEntry)
+        {
+            if (Database.TrySendCommand(dataEntry.GetSqlCommand("npcs")))
+            {
+                dataEntry.Unsaved = false;
+                UnsavedEntries.Remove(dataEntry);
+                HasUnsavedChanges = UnsavedEntries.Any();
+                return true;
+            }
+
+            return !dataEntry.Unsaved;
+        }
+
+        public void SaveNpcData()
+        {
+            foreach (DataEntry dataEntry in NpcEntries)
+                SaveNpc(dataEntry);
+        }
+
         public void LoadNpcData()
         {
-            if (NpcEntries == null)
-                NpcEntries = new ObservableCollection<DataEntry>();
-
             string cmd = "SELECT * FROM npcs";
-            if (Database.TrySendCommand(cmd, out SqlDataReader reader))
+            if (Database.TrySendCommand(cmd, out SqlDataReader? reader))
             {
+                //  Remove any event listeners
+                foreach (DataEntry npc in NpcEntries)
+                    npc.PropertyChanged -= OnNpcPropertyChanged;
+
                 //  We want to be capable of continuing work without losing previously loaded data.
                 //  Only clear data if the command was successful.
                 NpcEntries.Clear();
+                UnsavedEntries.Clear();
+                HasUnsavedChanges = false;
 
                 using (reader)
                 {
-                    while (reader.Read())
+                    while (reader?.Read() ?? false)
                     {
-                        string id = reader.GetString(0);
+                        int id = reader.GetInt32(0);
                         string label = reader.GetString(1);
                         string name = reader.GetString(2);
                         string title = reader.GetString(3);
@@ -94,11 +120,12 @@ namespace MmorpgToolkit
                             Description = description
                         };
 
+                        npc.PropertyChanged += OnNpcPropertyChanged;
+
                         NpcEntries.Add(npc);
                     }
 
-                    //  Ensure unsaved changes isn't flagged
-                    HasUnsavedChanges = false;
+                    reader?.Close();
                 }
             }
         }

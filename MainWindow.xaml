@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="MMORPG Toolkit" Height="450" Width="800">
     <Window.DataContext>
-        <local:Data/>
+        <local:ViewModel/>
     </Window.DataContext>
     <Window.Resources>
         <Style x:Key="DisabledButton" TargetType="Button">
@@ -48,7 +48,10 @@
                 </Button>
             </ToolBar>
             <ToolBar Visibility="{Binding IsSelected, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=NpcEditor}">
-                <Button  x:Name="SaveNpc" ToolTip="Save NPC" IsEnabled="{Binding Data.HasUnsavedChanges, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Visibility="Visible" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
+                <Button  x:Name="SaveAllNpcs" ToolTip="Save all NPCs" Click="SaveAllNpcs_Click" IsEnabled="{Binding Data.HasUnsavedChanges}" Visibility="Visible" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
+                    <Image Source="/Resources/SaveTable.png"/>
+                </Button>
+                <Button  x:Name="SaveNpc" ToolTip="Save NPC" Click="SaveNpc_Click" IsEnabled="{Binding SelectedEntry.Unsaved}" Visibility="Visible" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
                     <Image Source="/Resources/Save.png"/>
                 </Button>
                 <Button  x:Name="NewNpc" ToolTip="New NPC" Click="NewNpc_Click">
@@ -73,7 +76,7 @@
 
         <StatusBar DockPanel.Dock="Bottom" Height="20">
             <StatusBarItem Content="Server: offline"/>
-            <StatusBarItem Content="{Binding Database.State, Mode=OneWay}" ContentStringFormat="Database: {0}"/>
+            <StatusBarItem Content="{Binding Data.Database.State, Mode=OneWay}" ContentStringFormat="Database: {0}"/>
             <StatusBarItem Content="{Binding Items.Count, ElementName=listBox, Mode=OneWay}" ContentStringFormat="Entries: {0}"/>
             <StatusBarItem Content="State: unsaved" HorizontalAlignment="Right"/>
         </StatusBar>
@@ -87,7 +90,7 @@
                         <ColumnDefinition Width="5"/>
                         <ColumnDefinition Width="596*"/>
                     </Grid.ColumnDefinitions>
-                    <ListBox x:Name="listBox" Grid.Column="0" Margin="10,10,5,10" Grid.ColumnSpan="3" SelectedIndex="0" ItemsSource="{Binding NpcEntries}" DisplayMemberPath="DisplayMember" SelectionChanged="listBox_SelectionChanged">
+                    <ListBox x:Name="listBox" Grid.Column="0" Margin="10,10,5,10" Grid.ColumnSpan="3" SelectedIndex="0" ItemsSource="{Binding Data.NpcEntries}" DisplayMemberPath="DisplayMember" SelectionChanged="listBox_SelectionChanged">
                         <ListBox.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="_Refresh" InputGestureText="Ctrl+R" Click="RefreshData_Click">
@@ -95,7 +98,12 @@
                                         <Image Source="/Resources/Refresh.png"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" IsEnabled="{Binding Data.HasUnsavedChanges, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
+                                <MenuItem Header="Save _All" InputGestureText="Ctrl+Shift+S" Click="SaveAllNpcs_Click" IsEnabled="{Binding Data.HasUnsavedChanges, Mode=OneWay}">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/SaveTable.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Click="SaveNpc_Click" IsEnabled="{Binding SelectedEntry.Unsaved, Mode=OneWay}">
                                     <MenuItem.Icon>
                                         <Image Source="/Resources/Save.png"/>
                                     </MenuItem.Icon>
@@ -122,7 +130,7 @@
                                         <Image Source="/Resources/Refresh.png"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" IsEnabled="{Binding Data.HasUnsavedChanges, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
+                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Click="SaveNpc_Click" IsEnabled="{Binding SelectedEntry.Unsaved}">
                                     <MenuItem.Icon>
                                         <Image Source="/Resources/Save.png"/>
                                     </MenuItem.Icon>
@@ -140,23 +148,23 @@
                             </ContextMenu>
                         </ScrollViewer.ContextMenu>
                         <WrapPanel FlowDirection="LeftToRight">
-                            <GroupBox x:Name="NpcEditorBaseGroup" Header="Info">
+                            <GroupBox x:Name="NpcEditorBaseGroup" Header="{Binding SelectedEntry.ID, Mode=OneWay}" HeaderStringFormat="ID {0}">
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Label Content="ID" VerticalAlignment="Stretch" Width="50"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.ID, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
-                                    </StackPanel>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.ID, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                    </StackPanel>-->
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Label Content="Label" VerticalAlignment="Stretch" Width="50"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Label, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Label, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Name" VerticalAlignment="Stretch" Width="50"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Name, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Name, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Title" VerticalAlignment="Stretch" Width="50"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Title, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Title, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
                                     </StackPanel>
                                 </StackPanel>
                             </GroupBox>
@@ -164,15 +172,15 @@
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Faction" VerticalAlignment="Stretch" Width="70"/>
-                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource factionValues}}" SelectedValue="{Binding SelectedEntry.Faction, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource factionValues}}" SelectedValue="{Binding SelectedEntry.Faction, Mode=TwoWay}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Alignment" VerticalAlignment="Stretch" Width="70"/>
-                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource alignmentValues}}" SelectedValue="{Binding SelectedEntry.Alignment, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource alignmentValues}}" SelectedValue="{Binding SelectedEntry.Alignment, Mode=TwoWay}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Type" VerticalAlignment="Stretch" Width="70"/>
-                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource typeValues}}" SelectedValue="{Binding SelectedEntry.Type, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource typeValues}}" SelectedValue="{Binding SelectedEntry.Type, Mode=TwoWay}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </StackPanel>
                             </GroupBox>
@@ -180,7 +188,7 @@
                                 <RichTextBox Block.LineHeight="1">
                                     <FlowDocument>
                                         <Paragraph>
-                                            <Run Text="{Binding SelectedEntry.Description, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}"/>
+                                            <Run Text="{Binding SelectedEntry.Description, Mode=TwoWay}"/>
                                         </Paragraph>
                                     </FlowDocument>
                                 </RichTextBox>
@@ -189,11 +197,11 @@
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Level" VerticalAlignment="Stretch" Width="60"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Lvl, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Lvl, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="HP" VerticalAlignment="Stretch" Width="60"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.HP, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.HP, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
                                     </StackPanel>
                                 </StackPanel>
                             </GroupBox>

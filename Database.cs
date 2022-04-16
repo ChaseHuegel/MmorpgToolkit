@@ -17,13 +17,13 @@ namespace MmorpgToolkit
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private SqlConnection Connection;
+        private SqlConnection? Connection;
 
         public Database()
         {
             TryOpenConnection(out Connection);
 
-            if (IsAvailable())
+            if (IsAvailable() && Connection != null)
             {
                 Connection.StateChange += OnStateChanged;
             }
@@ -39,7 +39,7 @@ namespace MmorpgToolkit
 
         public void CloseConnection() => Connection?.Close();
 
-        public bool TryOpenConnection(out SqlConnection connection)
+        public bool TryOpenConnection(out SqlConnection? connection)
         {
             try
             {
@@ -54,7 +54,19 @@ namespace MmorpgToolkit
             }
         }
 
-        public bool TrySendCommand(string command, out SqlDataReader reader)
+        public bool TrySendCommand(string command)
+        {
+            if (IsAvailable())
+            {
+                SqlCommand cmd = new SqlCommand(command, Connection);
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TrySendCommand(string command, out SqlDataReader? reader)
         {
             if (IsAvailable())
             {

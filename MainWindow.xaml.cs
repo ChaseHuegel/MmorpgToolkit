@@ -20,56 +20,66 @@ namespace MmorpgToolkit
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
-        public DataEntry SelectedEntry => listBox.SelectedValue == null ? null : (DataEntry)listBox.SelectedValue;
-
-        public Data Data { get; private set; }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
+        private ViewModel m_ViewModel;
+        public ViewModel ViewModel => m_ViewModel ?? (m_ViewModel = (ViewModel)DataContext);
 
         public MainWindow()
         {
             InitializeComponent();
-            Data = (Data) DataContext;
-        }
-
-        private void NotifyPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            NotifyPropertyChanged(nameof(SelectedEntry));
+            ViewModel.SelectedEntry = (DataEntry)listBox.SelectedValue;
+        }
+
+        private void SaveNpc_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.SelectedEntry == null)
+                return;
+
+            ViewModel.Data.SaveNpc(ViewModel.SelectedEntry);
+        }
+
+        private void SaveAllNpcs_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ViewModel.Data.HasUnsavedChanges)
+                return;
+
+            MessageBoxResult confirmResult = MessageBox.Show($"Save all entries to the database?\n\nThis cannot be undone.", "Save All", MessageBoxButton.OKCancel);
+
+            if (confirmResult == MessageBoxResult.OK)
+                ViewModel.Data.SaveNpcData();
         }
 
         private void NewNpc_Click(object sender, RoutedEventArgs e)
         {
             DataEntry npc = new DataEntry {
                 Unsaved = true,
-                ID = Data.NpcEntries.Count.ToString(),
+                ID = ViewModel.Data.NpcEntries.Count,
                 Name = "New NPC"
             };
-            Data.NpcEntries.Add(npc);
+
+            ViewModel.Data.NpcEntries.Add(npc);
             listBox.SelectedIndex = listBox.Items.Count - 1;
         }
 
         private void RemoveNpc_Click(object sender, RoutedEventArgs e)
         {
-            if (listBox.SelectedIndex == -1)
+            if (ViewModel.SelectedEntry == null)
                 return;
 
-            MessageBoxResult confirmResult = MessageBox.Show($"ID: {SelectedEntry.ID}\n\nName: {SelectedEntry.Name}", "Delete", MessageBoxButton.OKCancel);
+            MessageBoxResult confirmResult = MessageBox.Show($"ID: {ViewModel.SelectedEntry.ID}\n\nName: {ViewModel.SelectedEntry.Name}", "Delete", MessageBoxButton.OKCancel);
 
             if (confirmResult == MessageBoxResult.OK)
-                Data.NpcEntries.RemoveAt(listBox.SelectedIndex);
+                ViewModel.Data.NpcEntries.RemoveAt(listBox.SelectedIndex);
         }
 
         private void RefreshData_Click(object sender, RoutedEventArgs e)
         {
-            if (Data.HasUnsavedChanges)
+            if (ViewModel.Data.HasUnsavedChanges)
             {
                 MessageBoxResult confirmResult = MessageBox.Show("You have unsaved changes.", "Refresh", MessageBoxButton.OKCancel);
 
@@ -78,7 +88,7 @@ namespace MmorpgToolkit
             }
 
             int index = listBox.SelectedIndex;
-            Data.LoadAll();
+            ViewModel.Data.LoadAll();
             listBox.SelectedIndex = Math.Clamp(index, -1, listBox.Items.Count - 1);
         }
     }

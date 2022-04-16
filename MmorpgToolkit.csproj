@@ -14,6 +14,7 @@
     <None Remove="Resources\Delete.png" />
     <None Remove="Resources\Refresh.png" />
     <None Remove="Resources\Save.png" />
+    <None Remove="Resources\SaveAll.png" />
     <None Remove="Resources\SaveTable.png" />
     <None Remove="Resources\Team.png" />
   </ItemGroup>
@@ -22,6 +23,7 @@
     <Resource Include="Resources\AddProperty.png" />
     <Resource Include="Resources\AddUser.png" />
     <Resource Include="Resources\Refresh.png" />
+    <Resource Include="Resources\SaveAll.png" />
     <Resource Include="Resources\Team.png" />
   </ItemGroup>
 
