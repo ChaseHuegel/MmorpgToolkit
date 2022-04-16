@@ -18,7 +18,8 @@ namespace MmorpgToolkit
             set => SetProperty(ref m_Data, value);
         }
 
-        public DataEntry SelectedEntry {
+        public DataEntry SelectedEntry
+        {
             get => GetProperty(ref m_SelectedEntry);
             set => SetProperty(ref m_SelectedEntry, value);
         }

@@ -87,8 +87,6 @@ namespace MmorpgToolkit
                 //  We want to be capable of continuing work without losing previously loaded data.
                 //  Only clear data if the command was successful.
                 NpcEntries.Clear();
-                UnsavedEntries.Clear();
-                HasUnsavedChanges = false;
 
                 using (reader)
                 {
@@ -124,6 +122,10 @@ namespace MmorpgToolkit
 
                         NpcEntries.Add(npc);
                     }
+
+                    //  Ensure no unsaved changes are flagged
+                    UnsavedEntries.Clear();
+                    HasUnsavedChanges = false;
 
                     reader?.Close();
                 }

@@ -74,9 +74,12 @@
             </ToolBar>
         </ToolBarTray>
 
-        <StatusBar DockPanel.Dock="Bottom" Height="20">
+        <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem Content="Server: offline"/>
             <StatusBarItem Content="{Binding Data.Database.State, Mode=OneWay}" ContentStringFormat="Database: {0}"/>
+            <TextBox Text="{Binding Data.Database.Name, Mode=TwoWay}"/>
+            <TextBox Text="{Binding Data.Database.Address, Mode=TwoWay}"/>
+            <TextBox Text="{Binding Data.Database.Port, Mode=TwoWay}"/>
             <StatusBarItem Content="{Binding Items.Count, ElementName=listBox, Mode=OneWay}" ContentStringFormat="Entries: {0}"/>
             <StatusBarItem Content="State: unsaved" HorizontalAlignment="Right"/>
         </StatusBar>
