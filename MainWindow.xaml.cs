@@ -56,13 +56,35 @@ namespace MmorpgToolkit
 
         private void NewNpc_Click(object sender, RoutedEventArgs e)
         {
+            int id;
+
+            List<int> recycledIDs = ViewModel.Data.DeletedEntries.Select(npc => npc.ID).ToList();
+
+            //  Attempt to recycle IDs from deleted entities
+            if (recycledIDs.Count > 0)
+            {
+                recycledIDs.Sort();
+                id = recycledIDs.Last();
+            }
+            //  Otherwise claim the first ID that is not in use
+            else
+            {
+                List<int> claimedIDs = ViewModel.Data.NpcEntries.Select(npc => npc.ID).ToList();
+                claimedIDs.Sort();
+
+                id = 0;
+                foreach (int claimedID in claimedIDs)
+                    if (claimedID == id)
+                        id++;
+            }
+
             DataEntry npc = new DataEntry {
                 Unsaved = true,
-                ID = ViewModel.Data.NpcEntries.Count,
+                ID = id,
                 Name = "New NPC"
             };
 
-            ViewModel.Data.NpcEntries.Add(npc);
+            ViewModel.Data.NpcEntries.Insert(id, npc);
             listBox.SelectedIndex = listBox.Items.Count - 1;
         }
 

@@ -25,6 +25,8 @@ namespace MmorpgToolkit
 
         public HashSet<DataEntry> UnsavedEntries { get; private set; } = new HashSet<DataEntry>();
 
+        public HashSet<DataEntry> DeletedEntries { get; private set; } = new HashSet<DataEntry>();
+
         public Data()
         {
             Database = new Database();
@@ -36,11 +38,15 @@ namespace MmorpgToolkit
         private void OnNpcEntriesChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
                 UnsavedEntries.Add(e.NewItems[0] as DataEntry);
+            }
             else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
-                UnsavedEntries.Remove(e.OldItems[0] as DataEntry);
+            {
+                DeletedEntries.Add(e.OldItems[0] as DataEntry);
+            }
 
-            HasUnsavedChanges = UnsavedEntries.Any();
+            UpdateUnsavedChangesFlag();
         }
 
         private void OnNpcPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -48,8 +54,10 @@ namespace MmorpgToolkit
             if (e.PropertyName != "Unsaved")
                 UnsavedEntries.Add(sender as DataEntry);
 
-            HasUnsavedChanges = UnsavedEntries.Any();
+            UpdateUnsavedChangesFlag();
         }
+
+        private void UpdateUnsavedChangesFlag() => HasUnsavedChanges = UnsavedEntries.Any() || DeletedEntries.Any();
 
         public void LoadAll()
         {
@@ -62,7 +70,7 @@ namespace MmorpgToolkit
             {
                 dataEntry.Unsaved = false;
                 UnsavedEntries.Remove(dataEntry);
-                HasUnsavedChanges = UnsavedEntries.Any();
+                UpdateUnsavedChangesFlag();
                 return true;
             }
 
@@ -73,6 +81,11 @@ namespace MmorpgToolkit
         {
             foreach (DataEntry dataEntry in NpcEntries)
                 SaveNpc(dataEntry);
+
+            foreach (DataEntry dataEntry in DeletedEntries)
+                Database.TrySendCommand($"DELETE FROM npcs WHERE id={dataEntry.ID}");
+
+            DeletedEntries.Clear();
         }
 
         public void LoadNpcData()
@@ -125,6 +138,7 @@ namespace MmorpgToolkit
 
                     //  Ensure no unsaved changes are flagged
                     UnsavedEntries.Clear();
+                    DeletedEntries.Clear();
                     HasUnsavedChanges = false;
 
                     reader?.Close();
