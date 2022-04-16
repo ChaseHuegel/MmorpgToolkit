@@ -85,7 +85,7 @@ namespace MmorpgToolkit
             };
 
             ViewModel.Data.NpcEntries.Insert(id, npc);
-            listBox.SelectedIndex = listBox.Items.Count - 1;
+            listBox.SelectedIndex = id;
         }
 
         private void RemoveNpc_Click(object sender, RoutedEventArgs e)
