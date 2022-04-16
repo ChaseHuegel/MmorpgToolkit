@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Add.png" />
+    <None Remove="Resources\AddProperty.png" />
+    <None Remove="Resources\AddUser.png" />
+    <None Remove="Resources\Delete.png" />
+    <None Remove="Resources\Refresh.png" />
+    <None Remove="Resources\Save.png" />
+    <None Remove="Resources\SaveTable.png" />
+    <None Remove="Resources\Team.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\AddProperty.png" />
+    <Resource Include="Resources\AddUser.png" />
+    <Resource Include="Resources\Refresh.png" />
+    <Resource Include="Resources\Team.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Add.png" />
+    <Resource Include="Resources\Delete.png" />
+    <Resource Include="Resources\Save.png" />
+    <Resource Include="Resources\SaveTable.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+  </ItemGroup>
+
+</Project>

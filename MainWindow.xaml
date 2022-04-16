@@ -1,0 +1,209 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MmorpgToolkit"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:Collections="clr-namespace:System.Collections;assembly=System.Runtime" x:Class="MmorpgToolkit.MainWindow"
+        mc:Ignorable="d"
+        Title="MMORPG Toolkit" Height="450" Width="800">
+    <Window.DataContext>
+        <local:Data/>
+    </Window.DataContext>
+    <Window.Resources>
+        <Style x:Key="DisabledButton" TargetType="Button">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Opacity" Value="0.35"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <ObjectDataProvider x:Key="factionValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:Faction"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="alignmentValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:Alignment"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="typeValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:Type"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    <DockPanel LastChildFill="true">
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Button x:Name="RefreshData" ToolTip="Refresh from database" Click="RefreshData_Click">
+                    <Image Source="/Resources/Refresh.png"/>
+                </Button>
+            </ToolBar>
+            <ToolBar Visibility="{Binding IsSelected, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=NpcEditor}">
+                <Button  x:Name="SaveNpc" ToolTip="Save NPC" IsEnabled="{Binding Data.HasUnsavedChanges, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Visibility="Visible" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
+                    <Image Source="/Resources/Save.png"/>
+                </Button>
+                <Button  x:Name="NewNpc" ToolTip="New NPC" Click="NewNpc_Click">
+                    <Image Source="/Resources/AddUser.png"/>
+                </Button>
+                <Button  x:Name="RemoveNpc" ToolTip="Delete selected NPC" Click="RemoveNpc_Click">
+                    <Image Source="/Resources/Delete.png"/>
+                </Button>
+            </ToolBar>
+            <ToolBar Visibility="{Binding IsSelected, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=ItemEditor}">
+                <Button  x:Name="SaveItem" ToolTip="Save Item">
+                    <Image Source="/Resources/Save.png"/>
+                </Button>
+                <Button  x:Name="NewItem" ToolTip="New Item" >
+                    <Image Source="/Resources/AddProperty.png"/>
+                </Button>
+                <Button  x:Name="RemoveItem" ToolTip="Delete selected Item">
+                    <Image Source="/Resources/Delete.png"/>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+
+        <StatusBar DockPanel.Dock="Bottom" Height="20">
+            <StatusBarItem Content="Server: offline"/>
+            <StatusBarItem Content="{Binding Database.State, Mode=OneWay}" ContentStringFormat="Database: {0}"/>
+            <StatusBarItem Content="{Binding Items.Count, ElementName=listBox, Mode=OneWay}" ContentStringFormat="Entries: {0}"/>
+            <StatusBarItem Content="State: unsaved" HorizontalAlignment="Right"/>
+        </StatusBar>
+
+        <TabControl SelectedIndex="0">
+            <TabItem x:Name="NpcEditor" Header="NPC Editor">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="28*"/>
+                        <ColumnDefinition Width="171*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="596*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="listBox" Grid.Column="0" Margin="10,10,5,10" Grid.ColumnSpan="3" SelectedIndex="0" ItemsSource="{Binding NpcEntries}" DisplayMemberPath="DisplayMember" SelectionChanged="listBox_SelectionChanged">
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="_Refresh" InputGestureText="Ctrl+R" Click="RefreshData_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Refresh.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" IsEnabled="{Binding Data.HasUnsavedChanges, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Save.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_New" InputGestureText="Ctrl+N" Click="NewNpc_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/AddUser.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_Delete" InputGestureText="Delete" Click="RemoveNpc_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Delete.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+                    <GridSplitter Grid.Column="2" HorizontalAlignment="Stretch" Width="5" Grid.ColumnSpan="2" Margin="0,0,596,0"/>
+                    <ScrollViewer Grid.Column="3" Margin="5,10,10,10" BorderThickness="1,1,1,1" BorderBrush="#FFABADB3" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="_Refresh" InputGestureText="Ctrl+R" Click="RefreshData_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Refresh.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" IsEnabled="{Binding Data.HasUnsavedChanges, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Save.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_New" InputGestureText="Ctrl+N" Click="NewNpc_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/AddUser.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_Delete" InputGestureText="Delete" Click="RemoveNpc_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Delete.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </ScrollViewer.ContextMenu>
+                        <WrapPanel FlowDirection="LeftToRight">
+                            <GroupBox x:Name="NpcEditorBaseGroup" Header="Info">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Label Content="ID" VerticalAlignment="Stretch" Width="50"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.ID, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Label Content="Label" VerticalAlignment="Stretch" Width="50"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Label, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Name" VerticalAlignment="Stretch" Width="50"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Name, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Title" VerticalAlignment="Stretch" Width="50"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Title, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox x:Name="NpcEditorMetaGroup" Header="Meta" Canvas.Top="106" Canvas.Left="137">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Faction" VerticalAlignment="Stretch" Width="70"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource factionValues}}" SelectedValue="{Binding SelectedEntry.Faction, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Alignment" VerticalAlignment="Stretch" Width="70"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource alignmentValues}}" SelectedValue="{Binding SelectedEntry.Alignment, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Type" VerticalAlignment="Stretch" Width="70"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource typeValues}}" SelectedValue="{Binding SelectedEntry.Type, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox x:Name="NpcEditorDescriptionGroup" Header="Description" Height="120">
+                                <RichTextBox Block.LineHeight="1">
+                                    <FlowDocument>
+                                        <Paragraph>
+                                            <Run Text="{Binding SelectedEntry.Description, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}"/>
+                                        </Paragraph>
+                                    </FlowDocument>
+                                </RichTextBox>
+                            </GroupBox>
+                            <GroupBox x:Name="NpcEditorAttributeGroup" Header="Attributes" Canvas.Top="106">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Level" VerticalAlignment="Stretch" Width="60"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Lvl, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="HP" VerticalAlignment="Stretch" Width="60"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.HP, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                        </WrapPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="ItemEditor" Header="Item Editor">
+
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>
