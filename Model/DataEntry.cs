@@ -10,9 +10,6 @@ namespace MmorpgToolkit
 {
     public class DataEntry : PropertyNotifier
     {
-        private List<PropertyInfo>? m_SqlDataProperties;
-        private List<PropertyInfo> SqlDataProperties => m_SqlDataProperties ??= GetType().GetProperties().Where(property => property.GetCustomAttribute<SqlDataAttribute>() != null).ToList();
-
         private string? m_Description;
         private string? m_Label;
         private string? m_Name;
@@ -24,70 +21,70 @@ namespace MmorpgToolkit
         private Alignment m_Alignment;
         private Type m_Type;
 
-        [SqlData]
+        [SqlProperty]
         public int ID
         {
             get => GetProperty(ref m_ID);
             set => SetProperty(ref m_ID, value);
         }
 
-        [SqlData]
+        [SqlProperty]
         public string Label
         {
             get => GetProperty(ref m_Label);
             set => SetProperty(ref m_Label, value);
         }
 
-        [SqlData]
+        [SqlProperty]
         public string Name
         {
             get => GetProperty(ref m_Name);
             set => SetProperty(ref m_Name, value);
         }
 
-        [SqlData]
+        [SqlProperty]
         public string Title
         {
             get => GetProperty(ref m_Title);
             set => SetProperty(ref m_Title, value);
         }
 
-        [SqlData]
+        [SqlProperty]
         public int Lvl
         {
             get => GetProperty(ref m_Lvl);
             set => SetProperty(ref m_Lvl, value);
         }
 
-        [SqlData]
+        [SqlProperty]
         public int HP
         {
             get => GetProperty(ref m_HP);
             set => SetProperty(ref m_HP, value);
         }
 
-        [SqlData]
+        [SqlProperty]
         public Faction Faction
         {
             get => GetProperty(ref m_Faction);
             set => SetProperty(ref m_Faction, value);
         }
 
-        [SqlData]
+        [SqlProperty]
         public Alignment Alignment
         {
             get => GetProperty(ref m_Alignment);
             set => SetProperty(ref m_Alignment, value);
         }
 
-        [SqlData]
+        [SqlProperty]
         public Type Type
         {
             get => GetProperty(ref m_Type);
             set => SetProperty(ref m_Type, value);
         }
 
-        [SqlData]
+        [SqlProperty]
         public string Description {
             get => GetProperty(ref m_Description);
             set => SetProperty(ref m_Description, value);
@@ -126,7 +123,7 @@ namespace MmorpgToolkit
             List<string> values = new List<string>();
             List<string> keyValues = new List<string>();
 
-            foreach (PropertyInfo property in SqlDataProperties)
+            foreach (PropertyInfo property in this.GetSqlProperties())
             {
                 string value = property.GetValue(this)?.ToString() ?? string.Empty;
                 value = value.Replace("'", "''");
