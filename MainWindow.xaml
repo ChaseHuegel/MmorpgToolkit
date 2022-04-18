@@ -36,7 +36,7 @@
 
         <ObjectDataProvider x:Key="typeValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:Type"/>
+                <x:Type TypeName="local:NpcType"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </Window.Resources>

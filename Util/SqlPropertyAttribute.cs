@@ -5,7 +5,17 @@ using System.Reflection;
 
 namespace MmorpgToolkit
 {
-    public class SqlPropertyAttribute : Attribute { }
+    public class SqlPropertyAttribute : Attribute
+    {
+        public string ColumnName { get; set; }
+
+        public SqlPropertyAttribute() { }
+
+        public SqlPropertyAttribute(string columnName)
+        {
+            ColumnName = columnName;
+        }
+    }
 
     public static class SqlPropertyAttributeExtensions
     {

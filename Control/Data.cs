@@ -113,7 +113,7 @@ namespace MmorpgToolkit
                         int hp = reader.GetInt32(5);
                         Faction faction = (Faction)Enum.Parse(typeof(Faction), reader.GetString(6), true);
                         Alignment alignment = (Alignment)Enum.Parse(typeof(Alignment), reader.GetString(7), true);
-                        Type type = (Type)Enum.Parse(typeof(Type), reader.GetString(8), true);
+                        NpcType type = (NpcType)Enum.Parse(typeof(NpcType), reader.GetString(8), true);
                         string description = reader.GetString(9);
 
                         DataEntry npc = new DataEntry {

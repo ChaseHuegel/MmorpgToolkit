@@ -1,6 +1,6 @@
 ﻿namespace MmorpgToolkit
 {
-    public enum Type
+    public enum NpcType
     {
         Humanoid,
         Critter,
