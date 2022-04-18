@@ -32,15 +32,15 @@ namespace MmorpgToolkit
 
         private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ViewModel.SelectedEntry = (DataEntry)listBox.SelectedValue;
+            ViewModel.SelectedNpc = (DataEntry)listBox.SelectedValue;
         }
 
         private void SaveNpc_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.SelectedEntry == null)
+            if (ViewModel.SelectedNpc == null)
                 return;
 
-            ViewModel.Data.SaveNpc(ViewModel.SelectedEntry);
+            ViewModel.Data.SaveNpc(ViewModel.SelectedNpc);
         }
 
         private void SaveAllNpcs_Click(object sender, RoutedEventArgs e)
@@ -90,10 +90,10 @@ namespace MmorpgToolkit
 
         private void RemoveNpc_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.SelectedEntry == null)
+            if (ViewModel.SelectedNpc == null)
                 return;
 
-            MessageBoxResult confirmResult = MessageBox.Show($"ID: {ViewModel.SelectedEntry.ID}\n\nName: {ViewModel.SelectedEntry.Name}", "Delete", MessageBoxButton.OKCancel);
+            MessageBoxResult confirmResult = MessageBox.Show($"ID: {ViewModel.SelectedNpc.ID}\n\nName: {ViewModel.SelectedNpc.Name}", "Delete", MessageBoxButton.OKCancel);
 
             if (confirmResult == MessageBoxResult.OK)
                 ViewModel.Data.NpcEntries.RemoveAt(listBox.SelectedIndex);

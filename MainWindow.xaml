@@ -51,7 +51,7 @@
                 <Button  x:Name="SaveAllNpcs" ToolTip="Save all NPCs" Click="SaveAllNpcs_Click" IsEnabled="{Binding Data.HasUnsavedChanges}" Visibility="Visible" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
                     <Image Source="/Resources/SaveTable.png"/>
                 </Button>
-                <Button  x:Name="SaveNpc" ToolTip="Save NPC" Click="SaveNpc_Click" IsEnabled="{Binding SelectedEntry.Unsaved}" Visibility="Visible" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
+                <Button  x:Name="SaveNpc" ToolTip="Save NPC" Click="SaveNpc_Click" IsEnabled="{Binding SelectedNpc.Unsaved}" Visibility="Visible" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
                     <Image Source="/Resources/Save.png"/>
                 </Button>
                 <Button  x:Name="NewNpc" ToolTip="New NPC" Click="NewNpc_Click">
@@ -62,6 +62,9 @@
                 </Button>
             </ToolBar>
             <ToolBar Visibility="{Binding IsSelected, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=ItemEditor}">
+                <Button  x:Name="SaveAllItems" ToolTip="Save all items" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
+                    <Image Source="/Resources/SaveTable.png"/>
+                </Button>
                 <Button  x:Name="SaveItem" ToolTip="Save Item">
                     <Image Source="/Resources/Save.png"/>
                 </Button>
@@ -106,7 +109,7 @@
                                         <Image Source="/Resources/SaveTable.png"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Click="SaveNpc_Click" IsEnabled="{Binding SelectedEntry.Unsaved, Mode=OneWay}">
+                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Click="SaveNpc_Click" IsEnabled="{Binding SelectedNpc.Unsaved, Mode=OneWay}">
                                     <MenuItem.Icon>
                                         <Image Source="/Resources/Save.png"/>
                                     </MenuItem.Icon>
@@ -133,7 +136,7 @@
                                         <Image Source="/Resources/Refresh.png"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Click="SaveNpc_Click" IsEnabled="{Binding SelectedEntry.Unsaved}">
+                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Click="SaveNpc_Click" IsEnabled="{Binding SelectedNpc.Unsaved}">
                                     <MenuItem.Icon>
                                         <Image Source="/Resources/Save.png"/>
                                     </MenuItem.Icon>
@@ -151,23 +154,19 @@
                             </ContextMenu>
                         </ScrollViewer.ContextMenu>
                         <WrapPanel FlowDirection="LeftToRight">
-                            <GroupBox x:Name="NpcEditorBaseGroup" Header="{Binding SelectedEntry.ID, Mode=OneWay}" HeaderStringFormat="ID {0}">
+                            <GroupBox x:Name="NpcEditorBaseGroup" Header="{Binding SelectedNpc.ID, Mode=OneWay}" HeaderStringFormat="ID {0}">
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                                    <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Label Content="ID" VerticalAlignment="Stretch" Width="50"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.ID, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
-                                    </StackPanel>-->
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Label Content="Label" VerticalAlignment="Stretch" Width="50"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Label, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.Label, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Name" VerticalAlignment="Stretch" Width="50"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Name, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.Name, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Title" VerticalAlignment="Stretch" Width="50"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Title, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.Title, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
                                     </StackPanel>
                                 </StackPanel>
                             </GroupBox>
@@ -175,15 +174,15 @@
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Faction" VerticalAlignment="Stretch" Width="70"/>
-                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource factionValues}}" SelectedValue="{Binding SelectedEntry.Faction, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource factionValues}}" SelectedValue="{Binding SelectedNpc.Faction, Mode=TwoWay}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Alignment" VerticalAlignment="Stretch" Width="70"/>
-                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource alignmentValues}}" SelectedValue="{Binding SelectedEntry.Alignment, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource alignmentValues}}" SelectedValue="{Binding SelectedNpc.Alignment, Mode=TwoWay}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Type" VerticalAlignment="Stretch" Width="70"/>
-                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource typeValues}}" SelectedValue="{Binding SelectedEntry.Type, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource typeValues}}" SelectedValue="{Binding SelectedNpc.Type, Mode=TwoWay}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </StackPanel>
                             </GroupBox>
@@ -191,7 +190,7 @@
                                 <RichTextBox Block.LineHeight="1">
                                     <FlowDocument>
                                         <Paragraph>
-                                            <Run Text="{Binding SelectedEntry.Description, Mode=TwoWay}"/>
+                                            <Run Text="{Binding SelectedNpc.Description, Mode=TwoWay}"/>
                                         </Paragraph>
                                     </FlowDocument>
                                 </RichTextBox>
@@ -200,11 +199,11 @@
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="Level" VerticalAlignment="Stretch" Width="60"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.Lvl, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.Lvl, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                                         <Label Content="HP" VerticalAlignment="Stretch" Width="60"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedEntry.HP, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.HP, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
                                     </StackPanel>
                                 </StackPanel>
                             </GroupBox>
@@ -213,7 +212,127 @@
                 </Grid>
             </TabItem>
             <TabItem x:Name="ItemEditor" Header="Item Editor">
-
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="28*"/>
+                        <ColumnDefinition Width="171*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="596*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="itemEditorListBox" Grid.Column="0" Margin="10,10,5,10" Grid.ColumnSpan="3" SelectedIndex="0" ItemsSource="{Binding Data.NpcEntries}" DisplayMemberPath="DisplayMember" SelectionChanged="listBox_SelectionChanged">
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="_Refresh" InputGestureText="Ctrl+R" Click="RefreshData_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Refresh.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Save _All" InputGestureText="Ctrl+Shift+S" Click="SaveAllNpcs_Click" IsEnabled="{Binding Data.HasUnsavedChanges, Mode=OneWay}">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/SaveTable.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Click="SaveNpc_Click" IsEnabled="{Binding SelectedNpc.Unsaved, Mode=OneWay}">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Save.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_New" InputGestureText="Ctrl+N" Click="NewNpc_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/AddUser.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_Delete" InputGestureText="Delete" Click="RemoveNpc_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Delete.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+                    <GridSplitter Grid.Column="2" HorizontalAlignment="Stretch" Width="5" Grid.ColumnSpan="2" Margin="0,0,596,0"/>
+                    <ScrollViewer Grid.Column="3" Margin="5,10,10,10" BorderThickness="1,1,1,1" BorderBrush="#FFABADB3" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="_Refresh" InputGestureText="Ctrl+R" Click="RefreshData_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Refresh.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Click="SaveNpc_Click" IsEnabled="{Binding SelectedNpc.Unsaved}">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Save.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_New" InputGestureText="Ctrl+N" Click="NewNpc_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/AddUser.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="_Delete" InputGestureText="Delete" Click="RemoveNpc_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Delete.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </ScrollViewer.ContextMenu>
+                        <WrapPanel FlowDirection="LeftToRight">
+                            <GroupBox x:Name="ItemEditorBaseGroup" Header="{Binding SelectedNpc.ID, Mode=OneWay}" HeaderStringFormat="ID {0}">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Label Content="Label" VerticalAlignment="Stretch" Width="50"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.Label, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Name" VerticalAlignment="Stretch" Width="50"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.Name, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Title" VerticalAlignment="Stretch" Width="50"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.Title, Mode=TwoWay}" VerticalAlignment="Center" Width="200"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox x:Name="ItemEditorMetaGroup" Header="Meta" Canvas.Top="106" Canvas.Left="137">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Faction" VerticalAlignment="Stretch" Width="70"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource factionValues}}" SelectedValue="{Binding SelectedNpc.Faction, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Alignment" VerticalAlignment="Stretch" Width="70"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource alignmentValues}}" SelectedValue="{Binding SelectedNpc.Alignment, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Type" VerticalAlignment="Stretch" Width="70"/>
+                                        <ComboBox Width="100" ItemsSource="{Binding Mode=OneWay, Source={StaticResource typeValues}}" SelectedValue="{Binding SelectedNpc.Type, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox x:Name="ItemEditorDescriptionGroup" Header="Description" Height="120">
+                                <RichTextBox Block.LineHeight="1">
+                                    <FlowDocument>
+                                        <Paragraph>
+                                            <Run Text="{Binding SelectedNpc.Description, Mode=TwoWay}"/>
+                                        </Paragraph>
+                                    </FlowDocument>
+                                </RichTextBox>
+                            </GroupBox>
+                            <GroupBox x:Name="ItemEditorAttributeGroup" Header="Attributes" Canvas.Top="106">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="Level" VerticalAlignment="Stretch" Width="60"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.Lvl, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Label Content="HP" VerticalAlignment="Stretch" Width="60"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SelectedNpc.HP, Mode=TwoWay}" VerticalAlignment="Center" Width="60"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                        </WrapPanel>
+                    </ScrollViewer>
+                </Grid>
             </TabItem>
         </TabControl>
     </DockPanel>
