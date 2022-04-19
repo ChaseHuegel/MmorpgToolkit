@@ -113,5 +113,10 @@ namespace MmorpgToolkit
             ViewModel.Data.LoadAll();
             listBox.SelectedIndex = Math.Clamp(index, -1, listBox.Items.Count - 1);
         }
+
+        private void ReconnectDatabase_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Data.Database.Reconnect();
+        }
     }
 }

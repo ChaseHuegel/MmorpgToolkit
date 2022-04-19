@@ -79,7 +79,13 @@
 
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem Content="Server: offline"/>
+            <Button ToolTip="Reconnect to server" Width="18" Height="18" IsEnabled="False" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
+                <Image Source="/Resources/ConnectToRemoteServer.png"/>
+            </Button>
             <StatusBarItem Content="{Binding Data.Database.State, Mode=OneWay}" ContentStringFormat="Database: {0}"/>
+            <Button ToolTip="Reconnect to database" Click="ReconnectDatabase_Click" Width="18" Height="18" Style="{Binding Mode=OneWay, Source={StaticResource DisabledButton}}">
+                <Image Source="/Resources/ConnectToDatabase.png"/>
+            </Button>
             <TextBox Text="{Binding Data.Database.Name, Mode=TwoWay}"/>
             <TextBox Text="{Binding Data.Database.Address, Mode=TwoWay}"/>
             <TextBox Text="{Binding Data.Database.Port, Mode=TwoWay}"/>

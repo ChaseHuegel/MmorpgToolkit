@@ -11,8 +11,6 @@ namespace MmorpgToolkit
 {
     public class Database : PropertyNotifier
     {
-        private const int Timeout = 2;
-
         public string ConnectionString => $"Data Source={Address},{Port};Initial Catalog={Name};Trusted_Connection=True;Connection Timeout={Timeout}";
 
         public ConnectionState State => Connection?.State ?? ConnectionState.Closed;
@@ -21,7 +19,8 @@ namespace MmorpgToolkit
 
         private string m_Name = "mmorpg";
         private string m_Address = "127.0.0.1";
-        private int m_Port = 16261;
+        private int m_Port = 1433;
+        private int m_Timeout = 5;
 
         public string Name
         {
@@ -39,6 +38,12 @@ namespace MmorpgToolkit
         {
             get => GetProperty(ref m_Port);
             set => SetProperty(ref m_Port, value);
+        }
+
+        public int Timeout
+        {
+            get => GetProperty(ref m_Timeout);
+            set => SetProperty(ref m_Timeout, value);
         }
 
         public Database()
@@ -66,13 +71,17 @@ namespace MmorpgToolkit
             Connection = null;
         }
 
+        public void Reconnect()
+        {
+            CloseConnection();
+            Connect();
+        }
+
         protected override void OnPropertyChanged(string propertyName)
         {
             base.OnPropertyChanged(propertyName);
 
-            CloseConnection();
-            Connect();
-
+            Reconnect();
             RaisePropertyChanged(nameof(State));
         }
 
